@@ -84,7 +84,8 @@ class HrPayslip(models.Model):
                     continue
                 if validation_mode == "by_manager" and line.status != "approved":
                     continue
-                duration = line.duration or line.manual_duration or 0.0
+                # manual_duration = horas aprobadas (el manager puede corregirlas); duration = detectadas
+                duration = line.manual_duration
                 if duration <= 0:
                     continue
                 is_100 = (line.amount_rate or 1.0) >= 2.0 or "non_work_days" in line.rule_ids.mapped("timing_type")
