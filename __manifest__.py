@@ -1,6 +1,6 @@
 {
     "name": "Nómina Argentina: Sincronización de Asistencias y Horas Extras",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "Payroll",
     "summary": "Sincronización de fichadas reales de hr.attendance y cálculo legal de horas extras para jornales",
     "author": "Artimezoft / Antigravity",
@@ -14,7 +14,6 @@
     "data": [
         "data/overtime_ruleset_data.xml",
         "views/hr_payslip_views.xml",
-        "views/hr_payslip_run_views.xml",
     ],
     "application": False,
     "installable": True,
