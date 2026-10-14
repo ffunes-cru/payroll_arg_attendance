@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_payslip_run_form_payroll_arg_attendance" model="ir.ui.view">
+        <field name="name">hr.payslip.run.form.payroll.arg.attendance</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="payroll.hr_payslip_run_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button
+                    name="action_sync_attendance_hours"
+                    type="object"
+                    string="Sincronizar Asistencias del Lote"
+                    class="btn-secondary"
+                    invisible="state != 'draft'"
+                    help="Lee las horas reales del módulo de Asistencias (reloj/fichero) para todos los operarios del lote y recalcula los recibos."
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

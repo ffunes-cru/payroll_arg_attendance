@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_payslip_form_payroll_arg_attendance" model="ir.ui.view">
+        <field name="name">hr.payslip.form.payroll.arg.attendance</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="payroll.hr_payslip_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="before">
+                <group string="Asistencias Registradas">
+                    <field name="attendance_hours_count" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
