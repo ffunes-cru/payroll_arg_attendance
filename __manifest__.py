@@ -3,8 +3,8 @@
     "version": "19.0.2.0.0",
     "category": "Payroll",
     "summary": "Sincronización de fichadas reales de hr.attendance y cálculo legal de horas extras para jornales",
-    "author": "Artimezoft / Antigravity",
-    "license": "LGPL-3",
+    "author": "Franco Funes",
+    "license": "AGPL-3",
     "depends": [
         "payroll_arg",
         "hr_attendance",
