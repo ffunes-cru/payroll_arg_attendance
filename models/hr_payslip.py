@@ -1,13 +1,20 @@
+"""@file
+Recibo de jornalizados con horas desde Asistencias (`hr.attendance`): si el empleado tiene fichadas en
+el período, las horas normales y extras de las novedades salen de ellas y no del calendario.
+"""
 from datetime import datetime, time
 
 import pytz
 
 from odoo import api, fields, models
 
+## Zona horaria por defecto para el rango del período y el día de la semana de cada fichada.
 DEFAULT_TZ = "America/Argentina/Cordoba"
 
 
 class HrPayslip(models.Model):
+    """Recibo que toma `HS_NORM`, `HS_EXT50` y `HS_EXT100` de las fichadas del período."""
+
     _inherit = "hr.payslip"
 
     attendance_hours_count = fields.Float(
@@ -18,6 +25,13 @@ class HrPayslip(models.Model):
 
     @api.model
     def _get_period_attendances(self, contract, date_from, date_to):
+        """Fichadas cerradas (con salida) cuya entrada cae dentro del período, en hora local.
+
+        @param contract Contrato del recibo.
+        @param date_from Inicio del período.
+        @param date_to Fin del período.
+        @return hr.attendance.
+        """
         employee = contract.employee_id
         cal = contract.resource_calendar_id or employee.resource_calendar_id
         tz = pytz.timezone(cal.tz or employee.tz or DEFAULT_TZ) if cal else pytz.utc
@@ -32,6 +46,7 @@ class HrPayslip(models.Model):
 
     @api.depends("contract_id", "date_from", "date_to")
     def _compute_attendance_hours(self):
+        """Total de horas fichadas en el período (informativo en el recibo)."""
         for slip in self:
             if not (slip.contract_id and slip.date_from and slip.date_to):
                 slip.attendance_hours_count = 0.0
@@ -42,7 +57,17 @@ class HrPayslip(models.Model):
     @api.model
     def _get_period_input_amounts(self, contract, date_from, date_to, run):
         """Jornalizados con fichadas en el período: horas normales y extras desde Asistencias
-        en lugar del calendario."""
+        en lugar del calendario.
+
+        Sin fichadas (o con menos de 0,1 hs) quedan las horas del calendario de `payroll_arg`.
+        `FERIADO` y `VAC_DIAS` siguen viniendo del calendario y las licencias.
+
+        @param contract Contrato del recibo.
+        @param date_from Inicio del período.
+        @param date_to Fin del período.
+        @param run Lote (puede ser vacío).
+        @return dict {código de entrada: importe}.
+        """
         vals = super()._get_period_input_amounts(contract, date_from, date_to, run)
         if contract.wage_type != "hourly" or "HS_NORM" not in vals:
             return vals
@@ -62,7 +87,18 @@ class HrPayslip(models.Model):
         - 50%: el resto de las horas extras.
         - Normales: horas trabajadas menos horas extras.
 
-        :return: {"HS_NORM": h, "HS_EXT50": h, "HS_EXT100": h}
+        Con validación por responsable sólo cuentan las horas extras aprobadas (`manual_duration`, que
+        el responsable puede corregir). Sin líneas del motor de horas extras, las horas extra de cada
+        fichada van al 100% si la entrada es sábado o domingo y al 50% si no.
+
+        @param attendances Fichadas del período.
+        @param contract Contrato del recibo.
+        @return {"HS_NORM": h, "HS_EXT50": h, "HS_EXT100": h}
+
+        @bug A1 (payroll_arg/docs/revision.md): las horas extra pendientes de aprobación o rechazadas
+             quedan dentro de `HS_NORM` (normales = trabajadas − extras aprobadas) y se pagan como normales.
+        @bug A2: el sábado entero va al 100% (Art. 201 LCT: desde las 13 hs) y un feriado trabajado
+             suma `FERIADO` + extras al 100%.
         """
         employee = contract.employee_id
         validation_mode = employee.company_id.attendance_overtime_validation
