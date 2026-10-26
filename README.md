@@ -13,7 +13,8 @@ Complemento de `payroll_arg`: los jornalizados con fichadas (`hr.attendance`) en
 - Trae el conjunto de reglas *Convenio Argentina (Jornales LCT)*: exceso de jornada al 50%, días no
   laborables al 100%. Al pasar un contrato a jornalizado se le asigna.
 
-**Depende de:** `payroll_arg`, `hr_attendance`, `hr_holidays`, `resource`.
+**Autor:** Franco Funes · **Licencia:** [AGPL-3](LICENSE) · **Depende de:** `payroll_arg`,
+`hr_attendance`, `hr_holidays`, `resource`.
 
 Problemas conocidos (A1 a A3: extras pendientes pagadas como normales, sábado y feriado trabajado,
 topes): ver `payroll_arg/docs/revision.md`. Documentación general: `payroll_arg/README.md`.
